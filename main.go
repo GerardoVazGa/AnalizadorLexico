@@ -62,6 +62,7 @@ var palabrasRes = []string{"if", "else", "while", "for", "and", "or", "int", "fl
 type Token struct {
 	Type  TokenType
 	Valor string
+	conteoLinea int
 }
 
 type Lexema struct {
@@ -69,6 +70,7 @@ type Lexema struct {
 	pos    int
 	estado Estado
 	Tokens []Token
+	contLinea int
 }
 
 func newLexema(input io.Reader) *Lexema {
@@ -89,6 +91,7 @@ func newLexema(input io.Reader) *Lexema {
 		pos:    0,
 		estado: Inicio,
 		Tokens: []Token{},
+		contLinea: 1,
 	}
 }
 
@@ -165,6 +168,7 @@ func (lex *Lexema) AnalisisLex() []Token {
 	for i := 0; i < len(entrada); i++ {
 		char := rune(entrada[i]) //rune() -> convierte los valores tipo byte o caracter en un rune para ser usado en funciones unicode
 		fmt.Println("Vuelta: ", i)
+		
 
 		//Estado en los que se encuntra la expresion
 		switch lex.estado {
@@ -174,6 +178,9 @@ func (lex *Lexema) AnalisisLex() []Token {
 			fmt.Println(lexAux + "cam")
 			if unicode.IsSpace(char) {
 				fmt.Println("Hola .,::")
+				if(char == '\n'){
+					lex.contLinea++
+				}
 				continue
 
 			} else if unicode.IsLetter(char) || char == '_' {
@@ -188,7 +195,7 @@ func (lex *Lexema) AnalisisLex() []Token {
 				fmt.Println("Entre a: " + string(char))
 				lex.estado = Inicio
 				lexAux += string(char)
-				tokens = append(tokens, Token{TipoToken(lexAux), lexAux})
+				tokens = append(tokens, Token{TipoToken(lexAux), lexAux, lex.contLinea})
 				lexAux = ""
 			} else if char == '<' || char == '>' {
 				fmt.Println("Entre a " + string(char))
@@ -208,7 +215,7 @@ func (lex *Lexema) AnalisisLex() []Token {
 			} else if char == '*' || char == '%' || char == '^' {
 				lex.estado = Inicio
 				lexAux += string(char)
-				tokens = append(tokens, Token{TipoToken(lexAux), lexAux})
+				tokens = append(tokens, Token{TipoToken(lexAux), lexAux, lex.contLinea})
 				lexAux = ""
 			} else if char == '/' {
 				lex.estado = OpDivEst
@@ -234,7 +241,7 @@ func (lex *Lexema) AnalisisLex() []Token {
 				fmt.Println("k: " + lexAux)
 			} else {
 				lex.estado = Inicio
-				tokens = append(tokens, Token{TipoToken(lexAux), lexAux})
+				tokens = append(tokens, Token{TipoToken(lexAux), lexAux, lex.contLinea})
 				lexAux = ""
 				i--
 			}
@@ -251,7 +258,7 @@ func (lex *Lexema) AnalisisLex() []Token {
 				lexAux += string(char)
 
 			} else {
-				tokens = append(tokens, Token{TipoToken(lexAux), lexAux})
+				tokens = append(tokens, Token{TipoToken(lexAux), lexAux, lex.contLinea})
 				fmt.Println(tokens)
 				lexAux = ""
 				lex.estado = Inicio
@@ -265,7 +272,7 @@ func (lex *Lexema) AnalisisLex() []Token {
 				fmt.Println("po2: " + lexAux)
 			} else {
 				lex.estado = Inicio
-				tokens = append(tokens, Token{TipoToken(lexAux), lexAux})
+				tokens = append(tokens, Token{TipoToken(lexAux), lexAux, lex.contLinea})
 				fmt.Println(tokens)
 				lexAux = ""
 				i--
@@ -278,7 +285,7 @@ func (lex *Lexema) AnalisisLex() []Token {
 				lexAux += string(char)
 			} else {
 				lex.estado = Inicio
-				tokens = append(tokens, Token{TipoToken(lexAux), lexAux})
+				tokens = append(tokens, Token{TipoToken(lexAux), lexAux, lex.contLinea})
 				lexAux = ""
 				i--
 			}
@@ -290,7 +297,7 @@ func (lex *Lexema) AnalisisLex() []Token {
 			} else {
 				println("El caracter " + string(char) + " No puede ir solo")
 				lex.estado = Inicio
-				tokens = append(tokens, Token{TipoToken(lexAux), lexAux})
+				tokens = append(tokens, Token{TipoToken(lexAux), lexAux, lex.contLinea})
 				fmt.Println(tokens)
 				fmt.Println(lexAux + "ññ")
 				lexAux = ""
@@ -303,7 +310,7 @@ func (lex *Lexema) AnalisisLex() []Token {
 				lexAux += string(char)
 			} else {
 				lex.estado = Inicio
-				tokens = append(tokens, Token{TipoToken(lexAux), lexAux})
+				tokens = append(tokens, Token{TipoToken(lexAux), lexAux, lex.contLinea})
 				lexAux = ""
 				i--
 			}
@@ -311,9 +318,11 @@ func (lex *Lexema) AnalisisLex() []Token {
 			if unicode.IsDigit(char) {
 				lex.estado = EnteroEst
 				lexAux += string(char)
-			} else {
+			}else if char == '+'{
+				lex.estado = OpMasMenosEst
+			}else {
 				lex.estado = Inicio
-				tokens = append(tokens, Token{TipoToken(lexAux), lexAux})
+				tokens = append(tokens, Token{TipoToken(lexAux), lexAux, lex.contLinea})
 				lexAux = ""
 				i--
 			}
@@ -327,7 +336,7 @@ func (lex *Lexema) AnalisisLex() []Token {
 				lexAux += string(char)
 			} else {
 				lex.estado = Inicio
-				tokens = append(tokens, Token{TipoToken(lexAux), lexAux})
+				tokens = append(tokens, Token{TipoToken(lexAux), lexAux, lex.contLinea})
 				lexAux = ""
 				i--
 			}
@@ -365,7 +374,7 @@ func (lex *Lexema) AnalisisLex() []Token {
 	}
 
 	if lexAux != "" {
-		tokens = append(tokens, Token{TipoToken(lexAux), lexAux})
+		tokens = append(tokens, Token{TipoToken(lexAux), lexAux, lex.contLinea})
 		lexAux = ""
 	}
 
@@ -386,7 +395,7 @@ func main() {
 
 	for _, token := range tokens.AnalisisLex() {
 		
-		fmt.Printf("Type: %v, Value: %v\n", token.Type, token.Valor)
+		fmt.Printf("Type: %v, Value: %v, numero de linea: %v\n", token.Type, token.Valor, token.conteoLinea)
 
 	}
 
