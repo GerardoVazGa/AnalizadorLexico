@@ -215,7 +215,6 @@ func (lex *Lexema) AnalisisLex() []Token {
 				lex.estado = Inicio
 				lexAux += string(char)
 				tokens = append(tokens, Token{TipoToken(lexAux), lexAux, lex.contLinea})
-				fmt.Println("conteo: " + string(lex.contLinea))
 				lexAux = ""
 			} else if char == '/' {
 				lex.estado = OpDivEst
@@ -350,6 +349,10 @@ func (lex *Lexema) AnalisisLex() []Token {
 				}
 				lexAux += string(char)
 			} else if char == '*' {
+				fmt.Println("hola xd")
+				if char == '\n'{
+					lex.contLinea++
+				}
 				lex.estado = ComentMultiFinEst
 				lexAux += string(char)
 			}
