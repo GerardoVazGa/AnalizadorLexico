@@ -57,7 +57,7 @@ const (
 	ComentUniEst
 )
 
-var palabrasRes = []string{"if", "else", "while", "for", "and", "or", "int", "float", "string", "while", "switch"}
+var palabrasRes = []string{"if", "else", "while", "for", "and", "or", "int", "float", "string", "while", "switch", "cin", "cout"}
 
 type Token struct {
 	Type  TokenType
