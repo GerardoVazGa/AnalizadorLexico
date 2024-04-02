@@ -181,7 +181,6 @@ func (lex *Lexema) AnalisisLex() []Token {
 				if(char == '\n'){
 					lex.contLinea++
 				}
-				continue
 
 			} else if unicode.IsLetter(char) || char == '_' {
 				lex.estado = IdentificadorEst
@@ -216,6 +215,7 @@ func (lex *Lexema) AnalisisLex() []Token {
 				lex.estado = Inicio
 				lexAux += string(char)
 				tokens = append(tokens, Token{TipoToken(lexAux), lexAux, lex.contLinea})
+				fmt.Println("conteo: " + string(lex.contLinea))
 				lexAux = ""
 			} else if char == '/' {
 				lex.estado = OpDivEst
@@ -318,8 +318,6 @@ func (lex *Lexema) AnalisisLex() []Token {
 			if unicode.IsDigit(char) {
 				lex.estado = EnteroEst
 				lexAux += string(char)
-			}else if char == '+'{
-				lex.estado = OpMasMenosEst
 			}else {
 				lex.estado = Inicio
 				tokens = append(tokens, Token{TipoToken(lexAux), lexAux, lex.contLinea})
@@ -329,12 +327,14 @@ func (lex *Lexema) AnalisisLex() []Token {
 		case OpDivEst:
 			fmt.Println("Entre al op /")
 			if char == '*' {
+				fmt.Println("soy un " + string(char))
 				lex.estado = ComentMultiIniEst
 				lexAux += string(char)
 			} else if char == '/' {
 				lex.estado = ComentUniEst
 				lexAux += string(char)
 			} else {
+				fmt.Println("No entre a ningun if")
 				lex.estado = Inicio
 				tokens = append(tokens, Token{TipoToken(lexAux), lexAux, lex.contLinea})
 				lexAux = ""
@@ -345,6 +345,9 @@ func (lex *Lexema) AnalisisLex() []Token {
 			fmt.Println("Entre al coment uni")
 			if unicode.IsDigit(char) || unicode.IsLetter(char) || unicode.IsSpace(char) || unicode.IsSymbol(char) {
 				lex.estado = ComentMultiIniEst
+				if char == '\n'{
+					lex.contLinea++
+				}
 				lexAux += string(char)
 			} else if char == '*' {
 				lex.estado = ComentMultiFinEst
@@ -355,7 +358,6 @@ func (lex *Lexema) AnalisisLex() []Token {
 				lex.estado = Inicio
 				fmt.Println("hola lol")
 				lexAux = ""
-				i--
 			}
 		case ComentUniEst:
 			fmt.Println("wow::" + lexAux)
@@ -366,7 +368,6 @@ func (lex *Lexema) AnalisisLex() []Token {
 				lex.estado = Inicio
 				fmt.Println("wow" + lexAux)
 				lexAux = ""
-				i--
 			}
 			
 		}
