@@ -196,6 +196,7 @@ func (lex *Lexema) AnalisisLex() ([]Token, []Errores) {
 					lex.contLinea++
 					lex.contColum = 0
 				}
+				continue
 
 			} else if unicode.IsLetter(char) || char == '_' {
 				lex.estado = IdentificadorEst
@@ -357,9 +358,12 @@ func (lex *Lexema) AnalisisLex() ([]Token, []Errores) {
 			if unicode.IsDigit(char) {
 				lex.estado = EnteroEst
 				lexAux += string(char)
-			}else if char == '+'{
-				lex.estado = OpMasMenosEst
-			}else {
+			} else if char == '-' {
+				lexAux += string(char)
+				lex.estado = Inicio
+				tokens = append(tokens, Token{TipoToken(lexAux), lexAux})
+				lexAux = ""
+			} else {
 				lex.estado = Inicio
 				tokens = append(tokens, Token{TipoToken(lexAux), lexAux})
 				lexAux = ""
@@ -368,14 +372,12 @@ func (lex *Lexema) AnalisisLex() ([]Token, []Errores) {
 			}
 		case OpDivEst:
 			if char == '*' {
-				fmt.Println("soy un " + string(char))
 				lex.estado = ComentMultiIniEst
 				lexAux = ""
 			} else if char == '/' {
 				lex.estado = ComentUniEst
 				lexAux = ""
 			} else {
-				fmt.Println("No entre a ningun if")
 				lex.estado = Inicio
 				tokens = append(tokens, Token{TipoToken(lexAux), lexAux})
 				lexAux = ""
@@ -390,12 +392,7 @@ func (lex *Lexema) AnalisisLex() ([]Token, []Errores) {
 					lex.contLinea++
 				}
 				lex.estado = ComentMultiIniEst
-				lexAux += string(char)
 			} else if char == '*' {
-				fmt.Println("hola xd")
-				if char == '\n'{
-					lex.contLinea++
-				}
 				lex.estado = ComentMultiFinEst
 			}
 		case ComentMultiFinEst:
@@ -403,15 +400,20 @@ func (lex *Lexema) AnalisisLex() ([]Token, []Errores) {
 				lex.estado = ComentMultiFinEst
 			}else if char == '/' {
 				lex.estado = Inicio
-				fmt.Println("hola lol")
-				lexAux = ""
-				i--
+			}else{
+				if char == '\n' {
+					lex.contLinea++
+				}
+				lex.estado = ComentMultiIniEst
 			}
 		case ComentUniEst:
 			if char == '\n'{
 				lex.estado = Inicio
 				lexAux = ""
 				i--
+				lex.contColum--
+			} else{
+				lex.estado = ComentUniEst
 			}
 		}
 	}
